@@ -1,0 +1,6 @@
+ (markup-indexentry :open "~n\idxitem " :depth 0)
+ (markup-indexentry :open "~n \idxIitem " :depth 1)
+ (markup-indexentry :open "~n  \idxIIitem " :depth 2)
+ (markup-indexentry :open "~n   \idxIIIitem " :depth 3)
+ (markup-indexentry :open "~n    \idxIIIIitem " :depth 4)
+ (markup-indexentry :open "~n     \idxIIIIIitem " :depth 5)

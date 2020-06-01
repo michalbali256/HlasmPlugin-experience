@@ -1,0 +1,62 @@
+\sectionSrc{LSP data collector}
+{parser\_library/src/semantics/lsp\_info\_processor.h}
+\label{lsp_data}
+
+The data collection is necessary to be able to reply to the LSP requests without the need to re-parse. During the parsing process, a component called \emph{LSP info processor} processes and stores this information. The main goal of this component is to collect as much information as possible to provide meaningful and complex replies to the LSP requests while maintaining the memory and parse-time overhead negligible.
+
+\emph{LSP info processor} is invoked after each parsed and processed statement to collect and store the information it needs inside the \emph{LSP context} (part of HLASM context). 
+
+\subsection{Supported LSP language features}
+The plugin implements four LSP language features:
+\begin{description}
+	\item[hover] The \emph{hover} feature is invoked whenever a user moves his mouse cursor over a symbol for a short period of time. Typically a box with the information about the selected symbol appears right next to it.
+	\item[complete] The \emph{complete} feature may be triggered by a custom set of events such as typing a specific character. The server responds with a list of possible correct options that can be inserted into the particular position.
+	\item[go\_to\_definition] The \emph{go\_to\_definition} feature is invoked manually from the editor by selecting a symbol and consequently invoking the \TT{go\_to\_definition} command. The editor "jumps" to the location of the currently selected symbol's definition by moving the cursor to that location.
+	\item[references] The \emph{references} feature is invoked in a similar manner as the \emph{go\_to\_definition} feature. But the results of the \emph{references} feature are displayed as a list of all references to the selected symbol in the project, not just the definition of it. 
+\end{description}
+
+\subsection{Supported HLASM symbols}
+The symbols, on which the user might call mentioned LSP features, are \emph{instruction symbols}, \emph{variable symbols}, \emph{sequence symbols} and \emph{ordinary symbols}.
+
+The \emph{references} and the \emph{go\_to\_definition} features are very similar for each symbol type and in most cases work as described above. 
+
+However, there are two exceptions to the standard behavior of the \emph{go\_to\_definition} feature.
+First, the command jumps to the definition of an instruction symbol only for macros (to the macro definition file). For the built-in instructions, the feature simply jumps to the first occurrence of the instruction. Second, the command used on an ordinary COPY symbol jumps to the corresponding copy file.
+
+On the other hand, the responses to the \emph{hover} and the \emph{complete} features vary for each symbol type and are described in the following tables:
+\begin{table}[h]
+	\centering
+	\begin{tabular}{ll}
+		\toprule
+		\textbf{Symbol Type}            & \textbf{Hover contents}                              \\ \midrule
+		\multirow{2}{4cm}{instruction}  & the type of the instruction, the syntax of its parameters \\ 
+		                                & the version (macros only), the documentation \\ \midrule
+		variable                        & the type of the variable --- bool/string/number       \\ \midrule
+		sequence                        & the position of the definition                \\ \midrule
+		ordinary                        & absolute/relocatable, the value, the values of attributes \\
+		(COPY)                          & the name of the copy file                               \\  
+		\bottomrule
+	\end{tabular}
+	\caption{The contents of the \emph{hover} feature for each symbol type.}
+\end{table}
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{lll}
+		\toprule
+		\textbf{Symbol Type}            & \textbf{Trigger Characters, Events}     & \textbf{Response}  \\ \midrule
+		\multirow{2}{3cm}{instruction}  &  A-Z,@,\$,\# after any number of spaces & built-in HLASM instructions\\ 
+	                                   	& from the start of the line              & + already used macros     \\ \midrule
+		\multirow{3}{3cm}{variable}     & \multirow{3}{4cm}{\&}                   & variable symbols defined \\ 
+	 	                                &                                         & before the current line  \\ 
+	 	                                &                                         & in the current scope \\ \midrule
+		\multirow{2}{3cm}{sequence}     & \multirow{2}{4cm}{.}                    & sequence symbols defined \\ 
+										&                                         & before the current line  \\ \midrule
+		ordinary                        & \textit{not implemented}                & \textit{not implemented} \\
+		\bottomrule
+	\end{tabular}
+	\caption{The trigger event and the reponse to the \emph{complete} feature for each symbol type.}
+\end{table}
+
+
+

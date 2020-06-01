@@ -1,0 +1,94 @@
+\chapter{Build instructions}
+\label{build}
+In this chapter, we describe how to build the project on different platforms. We only describe methods that we use and are guaranteed to work, but other platforms and versions may work as well.
+
+The result of a build is the Visual Studio Code extension packed into a VSIX file, which can be found in the \TT{bin/} subdirectory of the build folder.
+
+\section{Prerequisites}
+\label{prereq}
+In order to build the project on any platform, following software needs to be installed:
+
+\begin{itemize}
+	\item CMake 3.10 or higher
+	\item C++ compiler with support for C++17
+	\item Java Development Kit (JDK) 8 or higher (the ANTLR project written in Java is built from sources)
+	\item Maven (the build system of ANTLR)
+	\item Git (needed to download sources of the third party software)
+	\item npm (for compiling the typescript parts of the VS Code extension)
+\end{itemize}
+
+\section{Windows}
+
+On windows, we use Visual Studio Community 2019. We also have VS configurations for building and testing the project in WSL.
+
+It is also possible to build the project from command line:
+\begin{verbatim}
+mkdir build && cd build
+cmake ../
+cmake --build .
+\end{verbatim}
+
+\section{Linux}
+
+In addition to the prerequisites listed in \cref{prereq}, linux build has two more prerequisites:
+
+\begin{itemize}
+	\item pkg-config
+	\item UUID library
+\end{itemize}
+
+
+We build the project for Ubuntu 18.04 and for the Alpine linux.
+\subsection{Ubuntu}
+On Ubuntu 18.04 the following commands install all prerequisites and then build the project into \TT{build} folder:
+
+\begin{verbatim}
+apt update && sudo apt install cmake g++-8 uuid-dev npm default-jdk
+                       pkg-config maven git
+mkdir build && cd build
+cmake -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ../
+cmake --build .
+\end{verbatim}
+
+
+\subsection{Alpine linux}
+
+The build works on Alpine linux version 3.10. The following commands install all prerequisites and then build the project into \TT{build} folder:
+\begin{verbatim}
+apk update && apk add linux-headers git g++ cmake util-linux-dev npm
+                      pkgconfig openjdk8 maven
+mkdir build && cd build
+cmake ../
+cmake --build .
+\end{verbatim}
+
+
+\section{Mac OS}
+We have only built the project on MacOS 10.14. In order to successfully build, we require LLVM 8 (it can be installed by using homebrew).
+
+The project can be built with a snippet like this:
+\begin{verbatim}
+mkdir build && cd build
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+      -DLLVM_PATH=<path-to-llvm-installation> ../
+cmake --build .
+\end{verbatim}
+For instance, a possible path to LLVM is \TT{/usr/local/opt/llvm\@8}
+
+\section{Running tests}
+Once the project is built, there are two test executables in the \TT{bin/} subdirectory of the build folder: \TT{library\_test} and \TT{server\_test}. Just run both of them to verify the build. The tests must be run from the \TT{bin} folder, because they need to load resources from the \TT{bin/test/} directory.
+
+\section{Installation}
+The built VSIX can be manually installed into VS Code by following these steps:
+\begin{enumerate}
+	\item Open the extensions tab (Ctrl + Shift + X)
+	\item Select ``More actions ...'' (the $\cdots$ icon)
+	\item Select ``Install from VSIX...''
+	\item Find the VSIX file and confirm the selection.
+	\item The plugin is now installed.
+\end{enumerate}
+
+Alternatively, the plugin can be installed with the following command:
+\begin{verbatim}
+code --install-extension <path-to-vsix>
+\end{verbatim}
